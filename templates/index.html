@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv='cache-control' content='no-cache'>
+	<!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/materialize.min.css') }}"  media="screen,projection"/>
+
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"  media="screen,projection"/>
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<title>Semáforo</title>
+
+</head>
+<body class="light-blue lighten-4">
+    <div class="navbar-fixed">
+        <nav>
+          <div class="nav-wrapper indigo darken-1">
+            <a href="#!" class="brand-logo center">Semáforo</a>
+          </div>
+        </nav>
+    </div>
+    <div class="grupos">
+        <div class="row">
+            <div class="col s12 m12">
+              <div class="card light-blue lighten-5">
+                <div class="card-content black-text">
+                  <span class="card-title">Semáforo 1</span>
+                    <div class="semaforos">
+                        <div class="left">
+                            <div class="idsemaforo">1</div>
+                            <div class="semaforo">
+                                <div class="stop disable"></div>
+                                <div class="warning"></div>
+                                <div class="go disable"></div>
+                            </div>
+                        </div>
+                        <div class="left">
+                            <div class="idsemaforo">2</div>
+                            <div class="semaforo">
+                                <div class="stop disable"></div>
+                                <div class="warning"></div>
+                                <div class="go disable"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-action">
+                  <a href="#" class="lime-text" id="manutencao">Colocar em Manutenção</a>
+                  <a href="#" class="lime-text" id="reiniciar">Reiniciar</a>
+                  <a class="btn-floating waves-effect waves-light red" id="remove"><i class="material-icons">remove</i></a>
+                  <a class="btn-floating waves-effect waves-light red" id="add"><i class="material-icons">add</i></a>
+                </div>
+              </div>
+            </div>       
+        </div>
+    </div>
+	<!--Import jQuery before materialize.js-->
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.2.1.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/materialize.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
