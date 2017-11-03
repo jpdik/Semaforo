@@ -1,0 +1,43 @@
+<div class="row">
+  <div class="col s12">
+    <div class="card white">
+      <div class="card-content black-text">
+        <p>
+          <div class="row">
+            <input type="hidden" name="id" value="">
+            <div class="input-field col s6">
+              <input placeholder="Digite um nome para o grupo de semáforo" id="group_name" type="text" class="validate">
+              <label for="group_name">Nome do Grupo</label>
+            </div>
+          </div>
+          <div class="criaSemaforos">
+            <div class="criaSemaforo row">
+              <div class="input-field col s6">
+                <select class="lista">
+                  <option value="0" disabled selected>Escolha um semáforo</option>
+                </select>
+                <label>Semáforo</label>
+              </div>
+              <div class = "col s2">
+               <label>Tempo Aberto</label>
+               <p class = "range-field">
+                <input type = "range" id = "tempo_semaforo" min = "0" max = "100" value="0" />
+              </p>
+              </div>
+            </div> 
+          </div>
+        
+        <div class="row">
+          <a class="btn-floating waves-effect waves-light red" id="removeCria"><i class="material-icons">remove</i></a>
+          <a class="btn-floating waves-effect waves-light red" id="addCria"><i class="material-icons">add</i></a>
+        </div>
+      </div>
+    </p>
+    <div class="card-action">
+      <a href="#" class="red-text" id="criar">Criar</a>
+      <a href="#" class="red-text" id="reiniciar">Cancelar</a>
+    </div>
+  </div>
+</div>
+
+</div>

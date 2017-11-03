@@ -1,4 +1,5 @@
 .idsemaforo {
+  margin-top: 10px;
   margin-left: 10px;
   text-align: center;
   width: 35px; height: 20px;
@@ -45,5 +46,5 @@
 }
 
 .card-content{
-  height: 220px;
+  overflow: auto;
 }
