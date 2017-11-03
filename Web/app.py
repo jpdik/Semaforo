@@ -3,11 +3,37 @@ import bluetooth
 import json
 from flask import Flask, Response, render_template, request
 
+import os.path as path
+
 BD_ADDR = "20:16:10:20:67:58" #itade address
 BD_PORTA = 1
 
+FILE = 'data/semaforo.json'
+
 app = Flask(__name__)
 
+dados = {}
+
+def atualizar_file(data):
+	data['id'] = dados['maxid']
+	dados['maxid'] += 1
+	dados['semaforos'].append(data)
+	with open(FILE, 'w') as f:
+		json.dump(dados, f)
+
+def carregar_file():
+	global dados
+	if(path.exists(FILE)):
+		dados = json.load(open(FILE, 'r'))
+
+		print " * File:({}) carregado!".format(FILE)
+	else:
+		dados['semaforos'] = []
+		dados['maxid'] = 1
+		with open(FILE, 'w') as f:
+			json.dump(dados, f)
+		print " * File:({}) criado com sucesso!".format(FILE)
+ 
 @app.after_request
 def add_header(response):
     """
@@ -28,16 +54,15 @@ def api():
 @app.route('/semaforos', methods=['GET'])
 def get_semaforos():
 	try:
-		return json.dumps(comando('N'));
+		return json.dumps({'status': 1, 'semaforos': json.loads(comando('N'))});
 	except bluetooth.btcommon.BluetoothError:
-		return json.dumps({'erro': 'Comunicacao'})
+		return json.dumps({'status': 0, 'erro': 'Comunicacao'})
 
 @app.route('/criar_regra', methods=['POST'])
 def criar_regra():
-	try:
-		return json.dumps(comando('N'));
-	except bluetooth.btcommon.BluetoothError:
-		return json.dumps({'erro': 'Comunicacao'})
+	data = json.loads(request.data)
+	atualizar_file(data)
+	return json.dumps({'status': 1})
 
 #Bluetooh
 def comando(command):
@@ -60,4 +85,5 @@ def comando(command):
 		raise bluetooth.btcommon.BluetoothError
 
 if __name__ == "__main__":
+  carregar_file()
   app.run(debug=True)

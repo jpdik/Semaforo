@@ -6,6 +6,8 @@ $(document).ready(function(){
 	//Variavel para atribuição de timer para coleta de dados dos sensores de proximidade(função que ira obter os dados dos sensores).
 	var obterdados;
 
+	var dados;
+
 	status = 0;
 
 	var $modelosemaforo = "<div class='left'>" +
@@ -61,7 +63,7 @@ $(document).ready(function(){
 	}
 
 	function criar(){
-		var dados = new Object();
+		dados = new Object();
 		
 		//Nome do grupo
 		dados.group_name = $("#group_name").val();
@@ -75,7 +77,7 @@ $(document).ready(function(){
 
 		//Interagindo com a lista de semáforos do front end, e colocando na lista
 		//Caso necessário
-		$(".criaSemaforo .lista option:selected").each(function(){
+		$(".criaSemaforo #lista option:selected").each(function(){
 	        //Verifica se um dado foi selecionado
 	        if($(this).val() != 0){ 
 	        	//verifica se já existe o elemento na lista. Caso não, o insere
@@ -90,11 +92,19 @@ $(document).ready(function(){
 
 		$(".criaSemaforo #tempo_semaforo").each(function(){
 	        //Verifica se um dado foi selecionado
-	        dados.tempos_semaforo.push($(this).val())
+	        dados.tempos_semaforo.push($(this).val());
 	    });
 
-	    alert(dados.tempos_semaforo);
 	    return status;
+	}
+
+	function limpar_campos(){
+		dados.group_name = $("#group_name").val("");
+		for(i = 0; i < $('.card-content .criaSemaforo').length; i++)
+			remove_CriaSemaforo();
+		$(".criaSemaforo #tempo_semaforo:last").val("0");
+		$("#lista").prop('selectedIndex', 0);
+		$("#lista").material_select();
 	}
 
 	$( "#add" ).click(function() {
@@ -123,8 +133,10 @@ $(document).ready(function(){
 
 	$( "#criar" ).click(function() {
 		var status = criar();
-		if( status == "0")
-			Materialize.toast('Criado com sucesso!', 4000);
+		if( status == "0"){
+			criar_Regra();
+			Materialize.toast('Criado com sucesso!', 4000,'', function(){limpar_campos()});
+		}
 		else if( status == 1)
 			Materialize.toast('Não pode ter 2 semáforos iguais em um grupo!', 4000);
 		else if( status == 2)
@@ -133,21 +145,35 @@ $(document).ready(function(){
 
 	function configurar_Lista(semaforos){
 		try{
-			var e = JSON.parse(semaforos);
-			for(i = 0; i < e['semaforos'].length; i++)
-				$(".lista:last").append("<option value='"+e['semaforos'][i]+"'>Semaforo "+e['semaforos'][i]+"</option>");
+			for(i = 0; i < semaforos.length; i++)
+				$("#lista:last").append("<option value='"+semaforos[i]+"'>Semaforo "+semaforos[i]+"</option>");
 			$('select').material_select();
 		}catch (Exception){
 			obter_Semaforos();
 		} 
 	}
 
+	function criar_Regra(){
+		$.ajax({
+			url: window.location.href.substring(0, window.location.href.lastIndexOf('/'))+'/criar_regra',
+			success: function (e) {
+			},
+			error: function (e) {
+			},
+				type: 'POST',
+				data: JSON.stringify(dados),
+            	contentType: 'application/json;charset=UTF-8',
+				cache: false,
+				processData: false
+			});
+	}	
+
 	function obter_Semaforos(){
 		$.ajax({
 			url: window.location.href.substring(0, window.location.href.lastIndexOf('/'))+'/semaforos',
 			success: function (e) {
 				var resp = JSON.parse(e);
-				configurar_Lista(resp)
+				configurar_Lista(resp['semaforos'])
 			},
 			error: function (e) {
 				obter_Semaforos();

@@ -28,7 +28,7 @@ void loop() {
     incomingByte = Serial3.read();
 
     if (incomingByte == 'N') {
-      sprintf(json, "{\"semaforos\": [%c, %c, %c, %c]}", ID, getSemaforo(2), getSemaforo(3), getSemaforo(4));
+      sprintf(json, "[%c, %c, %c, %c]", ID, getSemaforo(2), getSemaforo(3), getSemaforo(4));
       Serial3.println(json);
     }
 
