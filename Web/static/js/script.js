@@ -13,6 +13,8 @@ $(document).ready(function () {
 		});
 	};
 
+	var dados;
+
 	//Descoberta(Necessário para elementos dinamicos). Também funciona com elementos fixos.
 	$(document).on("change", '#dep', function () {
 		//desativa o campo parente de tempo aberto caso seja selecionado uma dependencia.
@@ -35,7 +37,9 @@ $(document).ready(function () {
 
 		dados = new Object();
 
-		dados.id = $(this).parents('.card').find("input[name=idSem]").val()
+		dados.id = $(this).parents('.card').find("input[name=idSem]").val();
+
+		console.log(dados.id);
 
 		$('#message').html('Tem certeza que deseja apagar o grupo de semáforos "' + $(this).parents('.card').find(".card-title").html() + '"?');
 
@@ -106,11 +110,13 @@ $(document).ready(function () {
 		dados.group_name = $("#group_name").val();
 
 		//Lista para os semáforos
-		dados.rules_semaforo = []
+		dados.id = []
 
-		dados.tempos_aberto = []
+		dados.tempo_aberto = []
 
-		dados.dependencias = []
+		dados.dependencia = []
+
+		dados.semaforos = []
 
 		//se tiver somente um semáforo na regra, obtém se o tempo fechado tbm
 		if ($(".criaSemaforo #tempo_aberto").length == 1)
@@ -124,8 +130,8 @@ $(document).ready(function () {
 			//Verifica se um dado foi selecionado
 			if ($(this).val() != 0) {
 				//verifica se já existe o elemento na lista. Caso não, o insere
-				if (dados.rules_semaforo.indexOf($(this).val()) == -1)
-					dados.rules_semaforo.push($(this).val());
+				if (dados.id.indexOf($(this).val()) == -1)
+					dados.id.push($(this).val());
 				else
 					status = 1;
 			}
@@ -136,13 +142,26 @@ $(document).ready(function () {
 		//Interagindo com a lista de dependencias semáforos do front end, e colocando na lista
 		//0 para sem dependencia e o ID da dependencia caso tenha
 		$(".criaSemaforo #dep option:selected").each(function () {
-			dados.dependencias.push($(this).val());
+			dados.dependencia.push($(this).val());
 		});
 
 		$(".criaSemaforo #tempo_aberto").each(function () {
 			//Verifica se um dado foi selecionado
-			dados.tempos_aberto.push($(this).val());
+			dados.tempo_aberto.push($(this).val());
 		});
+
+		for (var i = 0; i < dados.id.length; i++) {
+			var info = new Object();
+			info.id = dados.id[i]
+			info.tempo_aberto = dados.tempo_aberto[i]
+			info.dependencia = dados.dependencia[i]
+			dados.semaforos.push(info);
+		}
+
+
+		delete dados.id;
+		delete dados.tempo_aberto;
+		delete dados.dependencia;
 
 		return status;
 	}

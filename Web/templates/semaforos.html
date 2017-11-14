@@ -14,12 +14,12 @@
     <div class='col s12 m12'>
       <div class='card white lighten-5'>
         <div class='card-content black-text'>
-          <input type='hidden' name='idSem' value='{{regra[' id ']}}'>
+          <input type='hidden' name='idSem' value='{{regra['id']}}'>
           <span class='card-title'>{{regra['group_name']}}</span>
           <div class='semaforos'>
-            {% for semaforo in regra['rules_semaforo'] %}
+            {% for semaforo in regra['semaforos'] %}
             <div class='left'>
-              <div class='idsemaforo'>{{semaforo}}</div>
+              <div class='idsemaforo'>{{semaforo['id']}}</div>
               <div class='semaforo'>
                 <div class='stop disable'></div>
                 <div class='warning'></div>

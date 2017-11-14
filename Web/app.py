@@ -20,15 +20,15 @@ dados = {}
 def atualizar_file(data):
     data['id'] = dados['maxid']
     dados['maxid'] += 1
-    dados['semaforos'].append(data)
+    dados['grupos'].append(data)
     with open(FILE, 'w') as f:
         json.dump(dados, f, sort_keys=True, indent=4)
 
 
 def deletar_from_file(data):
-    for k, i in enumerate(dados['semaforos']):
+    for k, i in enumerate(dados['grupos']):
         if int(i['id']) == int(data):
-            dados['semaforos'].pop(k)
+            dados['grupos'].pop(k)
             break
     with open(FILE, 'w') as f:
         json.dump(dados, f, sort_keys=True, indent=4)
@@ -41,7 +41,7 @@ def carregar_file():
 
         print " * File:({}) carregado!".format(FILE)
     else:
-        dados['semaforos'] = []
+        dados['grupos'] = []
         dados['maxid'] = 1
         with open(FILE, 'w') as f:
             json.dump(dados, f, sort_keys=True, indent=4)
@@ -68,7 +68,7 @@ def api():
     global semaforos
     #semaforos = json.loads(comando('N'))
     if request.method == 'GET':
-        return render_template('index.html', semaforos=semaforos_ID(0), regras=dados['semaforos'], dependencias=semaforos_ID(1))
+        return render_template('index.html', semaforos=semaforos_ID(0), regras=dados['grupos'], dependencias=semaforos_ID(1))
     else:
         return json.dumps({'erro': 'Metodo invalido'})
 
@@ -99,8 +99,9 @@ def semaforos_ID(usados):
     sem = []
     todos = []
 
-    for i in dados['semaforos']:
-        todos += map(int, i['rules_semaforo'])
+    for i in dados['grupos']:
+        for j in i['semaforos']:
+            todos += map(int, j['id'])
 
     if usados == 1:
         sem += [x for x in semaforos if x in todos and x not in sem]

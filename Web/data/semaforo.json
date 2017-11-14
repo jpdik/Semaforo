@@ -1,19 +1,21 @@
 {
-    "maxid": 2, 
-    "semaforos": [
+    "grupos": [
         {
-            "dependencias": [
-                "0"
-            ], 
-            "group_name": "Maria", 
+            "group_name": "Rua Jose", 
             "id": 1, 
-            "rules_semaforo": [
-                "1"
-            ], 
-            "tempo_fechado": "0", 
-            "tempos_aberto": [
-                "28"
+            "semaforos": [
+                {
+                    "dependencia": "0", 
+                    "id": "1", 
+                    "tempo_aberto": "74"
+                }, 
+                {
+                    "dependencia": "0", 
+                    "id": "4", 
+                    "tempo_aberto": "30"
+                }
             ]
         }
-    ]
+    ], 
+    "maxid": 2
 }
