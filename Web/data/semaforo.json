@@ -1,1 +1,19 @@
-{"semaforos": [{"rules_semaforo": ["1", "4"], "id": 1, "tempos_semaforo": ["100", "100"], "group_name": "Maria"}], "maxid": 2}
+{
+    "maxid": 2, 
+    "semaforos": [
+        {
+            "dependencias": [
+                "0"
+            ], 
+            "group_name": "Maria", 
+            "id": 1, 
+            "rules_semaforo": [
+                "1"
+            ], 
+            "tempo_fechado": "0", 
+            "tempos_aberto": [
+                "28"
+            ]
+        }
+    ]
+}

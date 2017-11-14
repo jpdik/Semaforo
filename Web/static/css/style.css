@@ -48,3 +48,24 @@
 .card-content{
   overflow: auto;
 }
+
+input[type=range]:disabled::-webkit-slider-thumb{
+  background-color: #8c8c8c;
+}
+input[type=range]:disabled::-moz-range-thumb {
+  background-color: #8c8c8c;
+}
+input[type=range]:disabled::-ms-thumb {
+  background-color: #8c8c8c;
+}
+
+.material-icons.md-40 { font-size: 40px; }
+
+.loader {
+  position: absolute;
+  top :0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+}

@@ -1,62 +1,42 @@
+<div id="confirm" class="modal">
+  <div class="modal-content">
+    <h4>Confirmação</h4>
+    <p id='message'></p>
+  </div>
+  <div class="modal-footer">
+    <a href="#" id="apagar" class="modal-action modal-close waves-effect waves-green btn-flat">Apagar</a>
+    <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Cancelar</a>
+  </div>
+</div>
 <div class="grupos">
-        <div class="row">
-            <div class="col s12 m12">
-              <div class="card white lighten-5">
-                <div class="card-content black-text">
-                  <span class="card-title">Semáforo 1</span>
-                    <div class="semaforos">
-                        <div class="left">
-                            <div class="idsemaforo">1</div>
-                            <div class="semaforo">
-                                <div class="stop disable"></div>
-                                <div class="warning"></div>
-                                <div class="go disable"></div>
-                            </div>
-                        </div>
-                        <div class="left">
-                            <div class="idsemaforo">2</div>
-                            <div class="semaforo">
-                                <div class="stop disable"></div>
-                                <div class="warning"></div>
-                                <div class="go disable"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-action">
-                  <a href="#" class="red-text" id="manutencao">Colocar em Manutenção</a>
-                  <a href="#" class="red-text" id="reiniciar">Reiniciar</a>
-                </div>
+  <div class="row">
+    {% for regra in regras %}
+    <div class='col s12 m12'>
+      <div class='card white lighten-5'>
+        <div class='card-content black-text'>
+          <input type='hidden' name='idSem' value='{{regra[' id ']}}'>
+          <span class='card-title'>{{regra['group_name']}}</span>
+          <div class='semaforos'>
+            {% for semaforo in regra['rules_semaforo'] %}
+            <div class='left'>
+              <div class='idsemaforo'>{{semaforo}}</div>
+              <div class='semaforo'>
+                <div class='stop disable'></div>
+                <div class='warning'></div>
+                <div class='go disable'></div>
               </div>
             </div>
-            <div class="col s12 m12">
-              <div class="card white lighten-5">
-                <div class="card-content black-text">
-                  <span class="card-title">Semáforo 2</span>
-                    <div class="semaforos">
-                        <div class="left">
-                            <div class="idsemaforo">1</div>
-                            <div class="semaforo">
-                                <div class="stop disable"></div>
-                                <div class="warning"></div>
-                                <div class="go disable"></div>
-                            </div>
-                        </div>
-                        <div class="left">
-                            <div class="idsemaforo">2</div>
-                            <div class="semaforo">
-                                <div class="stop disable"></div>
-                                <div class="warning"></div>
-                                <div class="go disable"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-action">
-                  <a href="#" class="red-text" id="manutencao">Colocar em Manutenção</a>
-                  <a href="#" class="red-text" id="reiniciar">Reiniciar</a>
-                </div>
-              </div>
-            </div>         
+            {% endfor %}
+          </div>
         </div>
+        <div class='card-action'>
+          <a href='#' class='red-text' id='manutencao'>Colocar em Manutenção</a>
+          <a href='#' class='red-text' id='reiniciar'>Reiniciar</a>
+          <a href='#' class='red-text right' id='confirmacao'>Apagar</a>
+          <a href='#' class='red-text right' id='editar'>Editar</a>
+        </div>
+      </div>
     </div>
+    {% endfor %}
+  </div>
+</div>

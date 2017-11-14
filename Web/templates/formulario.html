@@ -4,7 +4,7 @@
       <div class="card-content black-text">
         <p>
           <div class="row">
-            <input type="hidden" name="id" value="">
+            <input type="hidden" id="id" name="id" value="">
             <div class="input-field col s6">
               <input placeholder="Digite um nome para o grupo de semáforo" id="group_name" type="text" class="validate">
               <label for="group_name">Nome do Grupo</label>
@@ -15,29 +15,51 @@
               <div class="input-field col s6">
                 <select id="lista">
                   <option value="0" disabled selected>Escolha um semáforo</option>
+                  {% for i in semaforos %}
+                    <option value="{{i}}">Semáforo {{i}}</option>
+                  {% endfor %}
                 </select>
                 <label>Semáforo</label>
               </div>
-              <div class = "col s2">
-               <label>Tempo Aberto</label>
-               <p class = "range-field">
-                <input type = "range" id = "tempo_semaforo" min = "0" max = "100" value="0" />
-              </p>
+              <div class="tempo">
+                <div class="col s2">
+                  <label>Tempo Aberto</label>
+                  <p class="range-field">
+                    <input type="range" id="tempo_aberto" min="0" max="100" value="0" />
+                  </p>
+                </div>
+                <div class="input-field col s4">
+                  <select id="dep">
+                  <option value="0" selected>Nenhuma</option>
+                  {% for i in dependencias %}
+                    <option value="{{i}}">Semáforo {{i}}</option>
+                  {% endfor %}
+                </select>
+                  <label>Dependência</label>
+                </div>
               </div>
-            </div> 
+            </div>
+            <div class="criaSExtra row">
+              <div class="col s6"></div>
+              <div class="col s2">
+                <label>Tempo Fechado</label>
+                <p class="range-field">
+                  <input type="range" id="tempo_fechado" min="0" max="100" value="0" />
+                </p>
+              </div>
+            </div>
           </div>
-        
-        <div class="row">
-          <a class="btn-floating waves-effect waves-light red" id="removeCria"><i class="material-icons">remove</i></a>
-          <a class="btn-floating waves-effect waves-light red" id="addCria"><i class="material-icons">add</i></a>
+          <div class="row">
+            <a class="btn-floating waves-effect waves-light red" id="removeCria"><i class="material-icons">remove</i></a>
+            <a class="btn-floating waves-effect waves-light red" id="addCria"><i class="material-icons">add</i></a>
+          </div>
+        </div>
+        </p>
+        <div class="card-action">
+          <a href="#" class="red-text" id="criar">Criar</a>
+          <a href="#" class="red-text" id="reiniciar">Cancelar</a>
         </div>
       </div>
-    </p>
-    <div class="card-action">
-      <a href="#" class="red-text" id="criar">Criar</a>
-      <a href="#" class="red-text" id="reiniciar">Cancelar</a>
     </div>
-  </div>
-</div>
 
-</div>
+  </div>
