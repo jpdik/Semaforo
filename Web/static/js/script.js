@@ -116,7 +116,7 @@ $(document).ready(function () {
 
 		dados.dependencia = []
 
-		dados.semaforos = []
+		dados.semaforos = {}
 
 		//se tiver somente um semáforo na regra, obtém se o tempo fechado tbm
 		if ($(".criaSemaforo #tempo_aberto").length == 1)
@@ -151,11 +151,11 @@ $(document).ready(function () {
 		});
 
 		for (var i = 0; i < dados.id.length; i++) {
+			var id = dados.id[i].toString();
 			var info = new Object();
-			info.id = dados.id[i]
-			info.tempo_aberto = dados.tempo_aberto[i]
-			info.dependencia = dados.dependencia[i]
-			dados.semaforos.push(info);
+			info.tempo_aberto = dados.tempo_aberto[i];
+			info.dependencia = dados.dependencia[i];
+			dados.semaforos[id] = info;
 		}
 
 

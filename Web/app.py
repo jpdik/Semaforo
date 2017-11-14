@@ -18,17 +18,16 @@ dados = {}
 
 
 def atualizar_file(data):
-    data['id'] = dados['maxid']
+    dados['grupos'][dados['maxid']] = data
     dados['maxid'] += 1
-    dados['grupos'].append(data)
     with open(FILE, 'w') as f:
         json.dump(dados, f, sort_keys=True, indent=4)
 
 
 def deletar_from_file(data):
-    for k, i in enumerate(dados['grupos']):
-        if int(i['id']) == int(data):
-            dados['grupos'].pop(k)
+    for i in dados['grupos']:
+        if int(i) == int(data):
+            dados['grupos'].pop(i)
             break
     with open(FILE, 'w') as f:
         json.dump(dados, f, sort_keys=True, indent=4)
@@ -41,7 +40,7 @@ def carregar_file():
 
         print " * File:({}) carregado!".format(FILE)
     else:
-        dados['grupos'] = []
+        dados['grupos'] = {}
         dados['maxid'] = 1
         with open(FILE, 'w') as f:
             json.dump(dados, f, sort_keys=True, indent=4)
@@ -66,7 +65,7 @@ def init():
 def api():
     global dados
     global semaforos
-    #semaforos = json.loads(comando('N'))
+    # semaforos = json.loads(comando('N'))
     if request.method == 'GET':
         return render_template('index.html', semaforos=semaforos_ID(0), regras=dados['grupos'], dependencias=semaforos_ID(1))
     else:
@@ -100,8 +99,8 @@ def semaforos_ID(usados):
     todos = []
 
     for i in dados['grupos']:
-        for j in i['semaforos']:
-            todos += map(int, j['id'])
+        for j in dados['grupos'][i]['semaforos']:
+            todos += map(int, j)
 
     if usados == 1:
         sem += [x for x in semaforos if x in todos and x not in sem]

@@ -1,21 +1,18 @@
 {
-    "grupos": [
-        {
-            "group_name": "Rua Jose", 
-            "id": 1, 
-            "semaforos": [
-                {
+    "grupos": {
+        "2": {
+            "group_name": "Ola", 
+            "semaforos": {
+                "2": {
                     "dependencia": "0", 
-                    "id": "1", 
-                    "tempo_aberto": "74"
+                    "tempo_aberto": "0"
                 }, 
-                {
+                "3": {
                     "dependencia": "0", 
-                    "id": "4", 
-                    "tempo_aberto": "30"
+                    "tempo_aberto": "0"
                 }
-            ]
+            }
         }
-    ], 
-    "maxid": 2
+    }, 
+    "maxid": 3
 }
