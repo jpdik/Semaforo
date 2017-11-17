@@ -12,4 +12,6 @@ Vários arduínos foram interligados através de sua conexão serial, formando u
   <img src="https://github.com/jpdik/Semaforo/blob/master/img/example.png?raw=true"/>
 </p>
 
-# teste
+# Bug Fix
+Não permitir um grupo com mais de uma dependência iguais ou não.
+

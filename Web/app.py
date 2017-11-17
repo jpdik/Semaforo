@@ -130,6 +130,80 @@ def comando(command):
     except UnicodeDecodeError:
         raise bluetooth.btcommon.BluetoothError
 
+def calcula_tempos(dados):
+
+    lista_dep = [] # lista de ids grupos que tem dependência
+    lista_sem_dep = [] # lista de ids grupos que não tem dependência
+
+    semaforos = {} # objeto que contém a informção de qual grupo pertence um semáforo
+
+    # Percorre cara grupo gerando um objeto que contem o id de cada grupo por semáforo e
+    # o tempo total do grupo
+    for id_grupo in dados['grupos']:
+        dep = False
+        dep_de = '0'
+        dep_para = '0'
+        tempo_total = 0
+        
+        # cada semaforo
+        for id_semaforo in dados['grupos'][id_grupo]['semaforos']:
+            semaforos.update({id_semaforo:id_grupo})
+            if  dados['grupos'][id_grupo]['semaforos'][id_semaforo]['dependencia'] != '0':
+                dep = True
+                dep_de = id_semaforo
+                dep_para = dados['grupos'][id_grupo]['semaforos'][id_semaforo]['dependencia']
+            else:
+                tempo_total += float(dados['grupos'][id_grupo]['semaforos'][id_semaforo]['tempo_aberto'])
+                
+        if dep == True:
+            tempo_total = 0
+            lista_dep.append({'id_grupo':id_grupo,'dep_de':dep_de,'dep_para':dep_para})
+        else:
+            lista_sem_dep.append(id_grupo)
+
+        dados['grupos'][id_grupo].update({'tempo_total':tempo_total})
+
+    saida = ''
+
+    # Calcula o tempo de cada grupo que é independente de outros
+    while lista_sem_dep:
+        id_grupo = lista_sem_dep.pop()
+        for id_semaforo in dados['grupos'][id_grupo]['semaforos']:
+            dados['grupos'][id_grupo]['semaforos'][id_semaforo].update({'tempo_fechado':
+                dados['grupos'][id_grupo]['tempo_total'] -
+                float(dados['grupos'][id_grupo]['semaforos'][id_semaforo]['tempo_aberto']) })
+
+    # Calcula o tempo de cada grupo que é dependente de um outro
+    while lista_dep:
+        id_grupo = lista_dep.pop()
+        tempo_dep = float(dados['grupos'][semaforos[id_grupo['dep_para']]]['semaforos'][id_grupo['dep_para']]['tempo_aberto'])
+        tempo_total = dados['grupos'][semaforos[id_grupo['dep_para']]]['tempo_total'] - tempo_dep
+        quantidade = len(dados['grupos'][id_grupo['id_grupo']]['semaforos']) - 1
+
+        for id_semaforo in dados['grupos'][id_grupo['id_grupo']]['semaforos']:
+            tempo_fechado = 0
+            tempo_aberto = 0
+            if id_semaforo == id_grupo['dep_de']:
+                tempo_aberto = tempo_dep
+                tempo_fechado = tempo_total
+            else:
+                tempo_aberto = tempo_total / quantidade
+                if quantidade == 1:
+                    tempo_fechado = tempo_dep
+                else:
+                    tempo_fechado = (tempo_total / (quantidade - 1)) + tempo_dep
+
+            dados['grupos'][id_grupo['id_grupo']]['semaforos'][id_semaforo].update({'tempo_aberto':tempo_aberto,'tempo_fechado':tempo_fechado})
+
+
+    ret = '' # id_sem;aberto,fechado
+
+    for id_grupo in dados['grupos']:
+        for id_semaforo in dados['grupos'][id_grupo]['semaforos']:
+            ret += '{};{},{}\n'.format(id_semaforo,int(dados['grupos'][id_grupo]['semaforos'][id_semaforo]['tempo_aberto']),int(dados['grupos'][id_grupo]['semaforos'][id_semaforo]['tempo_fechado']))
+
+    return ret
+
 
 if __name__ == "__main__":
     carregar_file()
