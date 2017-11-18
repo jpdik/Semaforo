@@ -59,6 +59,16 @@ input[type=range]:disabled::-ms-thumb {
   background-color: #8c8c8c;
 }
 
+input[type=range]::-webkit-slider-thumb{
+  background-color: orange;
+}
+input[type=range]::-moz-range-thumb {
+  background-color: orange;
+}
+input[type=range]::-ms-thumb {
+  background-color: orange;
+}
+
 .material-icons.md-40 { font-size: 40px; }
 
 .loader {
@@ -68,4 +78,50 @@ input[type=range]:disabled::-ms-thumb {
   right: 0;
   bottom: 0;
   margin: auto;
+}
+
+.container  {
+  display: flex;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.container .row {
+  margin: 0 auto;
+}
+
+/*formulario*/
+  /* label color */
+  .input-field label {
+    color: #000;
+  }
+  /* label focus color */
+  .input-field input[type=text]:focus + label {
+    color: orange !important;
+  }
+  /* label underline focus color */
+  .input-field input[type=text]:focus {
+    border-bottom: 1px solid orange !important;
+    box-shadow: 0 1px 0 0 orange !important;
+  }
+  /* valid color */
+  .input-field input[type=text].valid {
+    border-bottom: 1px solid #000;
+    box-shadow: 0 1px 0 0 #000;
+  }
+  /* invalid color */
+  .input-field input[type=text].invalid {
+    border-bottom: 1px solid #000;
+    box-shadow: 0 1px 0 0 #000;
+  }
+  /* icon prefix focus color */
+  .input-field .prefix.active {
+    color: #000;
+  }
+/*color select option */
+ul.dropdown-content.select-dropdown li span {
+    color: orange; /* no need for !important :) */
 }

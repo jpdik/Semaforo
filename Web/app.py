@@ -2,8 +2,9 @@
 import bluetooth
 import json
 from flask import Flask, Response, render_template, request
-
+from threading import Thread
 import os.path as path
+import time
 
 BD_ADDR = "20:16:10:20:67:58"  # itade address
 BD_PORTA = 1
@@ -11,6 +12,8 @@ BD_PORTA = 1
 FILE = 'data/semaforo.json'
 
 app = Flask(__name__)
+th = Thread()
+finished = 0
 
 semaforos = [1, 2, 3, 4]
 
@@ -61,16 +64,37 @@ def add_header(response):
 def init():
     return render_template('loading.html')
 
-@app.route('/', methods=['GET', 'POST', 'PUT', 'DELETE'])
-def api():
-    global dados
-    global semaforos
-    # semaforos = json.loads(comando('N'))
-    if request.method == 'GET':
-        return render_template('index.html', semaforos=semaforos_ID(0), regras=dados['grupos'], dependencias=semaforos_ID(1))
+@app.route("/", methods=['GET'])
+def load():
+    global th
+    global finished
+    if finished == 0:
+        th = Thread(target=something, args=())
+        th.start()
+        return render_template('loading.html')
+    elif finished == 1:
+        global dados
+        finished = 0
+        if request.method == 'GET':
+            return render_template('index.html', semaforos=semaforos_ID(0), regras=dados['grupos'], dependencias=semaforos_ID(1))
     else:
-        return json.dumps({'erro': 'Metodo invalido'})
+        finished = 0
+        return render_template('erro.html')
 
+def something():
+    global semaforos
+    global finished
+    try:
+        #semaforos = json.loads(comando('N'))
+        finished = 1
+    except bluetooth.btcommon.BluetoothError:
+        finished = 2
+
+
+@app.route('/status')
+def thread_status():
+    """ Return the status of the worker thread """
+    return json.dumps(dict(status=('finished' if finished else 'running')))
 
 @app.route('/regras', methods=['GET'])
 def get_regras():

@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta http-equiv='cache-control' content='no-cache'>
   <!--Import Google Icon Font-->
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/icon.css') }}" rel="stylesheet">
   <!--Import materialize.css-->
   <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/materialize.min.css') }}" media="screen,projection"
   />
@@ -19,7 +19,7 @@
 
 </head>
 
-<body class="teal accent-1">
+<body class="black">
   <div class="preloader-wrapper big active loader">
     <div class="spinner-layer spinner-blue-only">
       <div class="circle-clipper left">
@@ -34,7 +34,7 @@
 
   <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.2.1.min.js') }}"></script>
   <script type="text/javascript" src="{{ url_for('static', filename='js/materialize.min.js') }}"></script>
-  <script type="text/javascript" src="{{ url_for('static', filename='js/script.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/loading.js') }}"></script>
 </body>
 
 </html>

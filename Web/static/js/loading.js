@@ -1,13 +1,13 @@
 $(document).ready(function () {
-  var refresh = setInterval(function () {
+  setInterval(function () {
     $.ajax({
-      url: window.location.href + 'status',
+      url: window.location.href.substring(0, window.location.href.lastIndexOf('/')) + '/status',
       success: function (e) {
         var resp = JSON.parse(e);
         console.log(resp);
         console.log(resp.status);
         if (resp.status == 'finished') {
-          carregar_pagina();
+          window.location.href = window.location.href.substring(0, window.location.href.lastIndexOf('/'))
           clearInterval(refresh);
         }
       },
@@ -20,20 +20,4 @@ $(document).ready(function () {
       processData: false
     });
   }, 1000);
-
-  function carregar_pagina(){
-    $.ajax({
-      url: window.location.href,
-      success: function (data) {
-        document.write(data);
-      },
-      error: function (data) {
-
-      },
-      type: 'POST',
-      cache: false,
-      contentType: false,
-      processData: false
-    });
-  }
 });

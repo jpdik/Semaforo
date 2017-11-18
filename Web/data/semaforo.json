@@ -1,18 +1,25 @@
 {
     "grupos": {
-        "2": {
-            "group_name": "Ola", 
+        "7": {
+            "group_name": "", 
+            "semaforos": {
+                "1": {
+                    "dependencia": "0", 
+                    "tempo_aberto": "0"
+                }
+            }, 
+            "tempo_fechado": "0"
+        }, 
+        "8": {
+            "group_name": "", 
             "semaforos": {
                 "2": {
                     "dependencia": "0", 
-                    "tempo_aberto": "0"
-                }, 
-                "3": {
-                    "dependencia": "0", 
-                    "tempo_aberto": "0"
+                    "tempo_aberto": "0", 
+                    "tempo_fechado": "0"
                 }
             }
         }
     }, 
-    "maxid": 3
+    "maxid": 9
 }
