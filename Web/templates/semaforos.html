@@ -18,22 +18,22 @@
           <span class='card-title'>{{regras[regra]['group_name']}}</span>
           <div class='semaforos'>
             {% for semaforo in regras[regra]['semaforos'] %}
-            <div class='left'>
+            <div class='left' id="bloco">
               <div class='idsemaforo'>{{semaforo}}</div>
-              <div class='semaforo'>
+              <div class='semaforo' id='{{semaforo}}'>
                 <div class='stop disable'></div>
                 <div class='warning'></div>
                 <div class='go disable'></div>
               </div>
+              <div class='tempoSemaforo green-text'>{{regras[regra]['semaforos'][semaforo]['tempo_aberto']}}</div>
             </div>
             {% endfor %}
           </div>
         </div>
         <div class='card-action'>
           <a href='#' class='orange-text' id='manutencao'>Colocar em Manutenção</a>
-          <a href='#' class='orange-text' id='reiniciar'>Reiniciar</a>
+          <a href='#' class='orange-text' id='reinicia'>Reiniciar</a>
           <a href='#' class='orange-text right' id='confirmacao'>Apagar</a>
-          <a href='#' class='orange-text right' id='editar'>Editar</a>
         </div>
       </div>
     </div>

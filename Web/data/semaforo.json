@@ -1,25 +1,4 @@
 {
-    "grupos": {
-        "7": {
-            "group_name": "", 
-            "semaforos": {
-                "1": {
-                    "dependencia": "0", 
-                    "tempo_aberto": "0"
-                }
-            }, 
-            "tempo_fechado": "0"
-        }, 
-        "8": {
-            "group_name": "", 
-            "semaforos": {
-                "2": {
-                    "dependencia": "0", 
-                    "tempo_aberto": "0", 
-                    "tempo_fechado": "0"
-                }
-            }
-        }
-    }, 
-    "maxid": 9
+    "grupos": {}, 
+    "maxid": 23
 }

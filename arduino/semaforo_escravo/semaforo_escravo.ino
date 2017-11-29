@@ -24,29 +24,28 @@ unsigned long previousMillis = 0;
 
 char incomingByte;
 
-#define ID 2
+#define ID 4
 
-void setup(){
+void setup() {
   pinMode(V, OUTPUT);
   pinMode(Y, OUTPUT);
   pinMode(G, OUTPUT);
 
-  Serial4.begin(9600);
-  Serial.begin(9600);
-  Serial1.begin(9600);
-  Serial2.begin(9600);
-  Serial3.begin(9600);
+  Serial4.begin(115200);
+  Serial.begin(115200);
+  Serial1.begin(115200);
+  Serial2.begin(115200);
+  Serial3.begin(115200);
 
   getSemaforos();
 }
-void loop(){
-  if(Serial3.available() > 0) {
+void loop() {
+  if (Serial3.available() > 0) {
     // read the incoming byte:
     incomingByte = Serial3.read();
 
-    if(incomingByte == 'S'){
+    if (incomingByte == 'S') {
       sprintf(json, "%s", getSemaforos().c_str());
-      Serial.println(json);
       Serial3.println(json);
     }
     else if (incomingByte == 'C') {
@@ -55,7 +54,7 @@ void loop(){
     else if (incomingByte == 'T') {
       trocaEstadoSemaforos(incomingByte);
     }
-    else if (incomingByte == 'R') {   
+    else if (incomingByte == 'R') {
       reiniciarSemaforos(incomingByte);
     }
     else if (incomingByte == 'D') {
@@ -74,7 +73,7 @@ void trocaEstadoSemaforos(char incomingByte) {
   while (true) {
     if (Serial3.available() > 0) {
       int c = Serial3.read();
-      if (c == '\n'){
+      if (c == '\n') {
         estado = S.toInt();
         if (id == ID)
           trocaEstado(estado);
@@ -111,12 +110,12 @@ void reiniciarSemaforos(char incomingByte) {
   while (true) {
     if (Serial3.available() > 0) {
       int c = Serial3.read();
-      if (c == '\n'){
+      if (c == '\n') {
         primeiro = S.toInt();
         if (id == ID)
           reiniciar();
         break;
-    }
+      }
       if (c == '-') {
         id = S.toInt();
         S = "";
@@ -135,7 +134,6 @@ void reiniciarSemaforos(char incomingByte) {
       data += (char)c;
     }
   }
-    Serial.println(data);
   setSemaforo(data, incomingByte);
 }
 
@@ -195,16 +193,16 @@ void getStatus(char incomingByte) {
     retornaStatus(setSemaforo(data, incomingByte));
 }
 
-void retornaStatus(int stats){
+void retornaStatus(int stats) {
   Serial3.println(stats);
 }
 
-String getSemaforos(){
+String getSemaforos() {
   String semaforos = "";
   String semaforo;
-  for(int i=2; i <= 4; i++){
+  for (int i = 2; i <= 4; i++) {
     semaforo = getSemaforo(i);
-    if(!semaforo.equals("0"))
+    if (!semaforo.equals("0"))
       semaforos += "," + semaforo;
   }
   return ID + semaforos;
@@ -214,18 +212,13 @@ String getSemaforo(int id) {
   String S = "";    // string to hold input
   int i = 0;
 
-  Serial4.flush();
-  Serial1.flush();
-  Serial2.flush();
-  Serial3.flush();
-
   while (i < 3) {
     if (id == 2) {
       Serial4.print('S');
       delay(10);
       while (Serial4.available() > 0) {
         int c = Serial4.read();
-        if(c == '\n' || c == 'S')
+        if (c == '\n' || c == 'S')
           break;
         else
           S += (char)c;
@@ -238,7 +231,7 @@ String getSemaforo(int id) {
       delay(10);
       while (Serial1.available() > 0) {
         int c = Serial1.read();
-        if(c == '\n' || c == 'S')
+        if (c == '\n' || c == 'S')
           break;
         else
           S += (char)c;
@@ -250,8 +243,7 @@ String getSemaforo(int id) {
       delay(10);
       while (Serial2.available() > 0) {
         int c = Serial2.read();
-        Serial.println((char)c);
-        if(c == '\n' || c == 'S')
+        if (c == '\n' || c == 'S')
           break;
         else
           S += (char)c;
@@ -260,20 +252,23 @@ String getSemaforo(int id) {
     }
     i++;
   }
-  if(S.equals("") || S.equals("S"))
+  if (S.equals("") || S.equals("S"))
     S = "0";
 
   S.trim();
+
+  clearFlush();
+  
   return S;
 }
 
 int setSemaforo(String data, char incomingByte) {
   String S = "";
-  
+
   if (Serial4.available() > 0) {
     Serial4.print(incomingByte);
     Serial4.println(data);
-    if(incomingByte == 'D'){
+    if (incomingByte == 'D') {
       while (Serial4.available() > 0) {
         int c = Serial4.read();
         if (c == '\n' || c == 'S')
@@ -286,7 +281,7 @@ int setSemaforo(String data, char incomingByte) {
   if (Serial1.available() > 0) {
     Serial1.print(incomingByte);
     Serial1.println(data);
-    if(incomingByte == 'D'){
+    if (incomingByte == 'D') {
       while (Serial1.available() > 0) {
         int c = Serial1.read();
         if (c == '\n' || c == 'S')
@@ -299,8 +294,8 @@ int setSemaforo(String data, char incomingByte) {
 
   if (Serial2.available() > 0) {
     Serial2.print(incomingByte);
-    Serial2.print(data);
-    if(incomingByte == 'D'){
+    Serial2.println(data);
+    if (incomingByte == 'D') {
       while (Serial2.available() > 0) {
         int c = Serial2.read();
         if (c == '\n' || c == 'S')
@@ -340,7 +335,7 @@ void semaforo() {
       }
     }
     else {
-      if (currentMillis - previousMillis >= tempoFechado + tempoWarn/2) {
+      if (currentMillis - previousMillis >= tempoFechado + tempoWarn / 2) {
         previousMillis = currentMillis;
         digitalWrite(V, LOW);
         digitalWrite(G, HIGH);
@@ -381,3 +376,11 @@ void reiniciar() {
       stats = 2;
     }
 }
+
+void clearFlush() {
+  while (Serial3.available())
+    Serial3.read();
+}
+
+
+
