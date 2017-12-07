@@ -13,7 +13,12 @@ $(document).ready(function () {
 		});
 	};
 
+	var stats;
 	var dados;
+
+	$( window ).bind('beforeunload',function(){
+		desabilitarStatus();
+	 });
 
 	//Descoberta(Necessário para elementos dinamicos). Também funciona com elementos fixos.
 	$(document).on("change", '#dep', function () {
@@ -30,6 +35,24 @@ $(document).ready(function () {
 			if ($(this).parents('.criaSemaforo .row').length == 0)
 				$('#tempo_fechado').prop("disabled", true);
 		}
+	});
+
+	$(document).on("click", '#manutencao', function () {
+		dados = new Object();
+
+		dados.id = $(this).parents('.card').find("input[name=idSem]").val();
+
+		manutencao();
+	});
+
+	$(document).on("click", '#reinicia', function () {
+		desabilitarStatus();
+
+		dados = new Object();
+
+		dados.id = $(this).parents('.card').find("input[name=idSem]").val();
+
+		reiniciar();
 	});
 
 	$(document).on("click", '#confirmacao', function (e) {
@@ -169,20 +192,10 @@ $(document).ready(function () {
 		remove_CriaSemaforo();
 	});
 
-	$("#manutencao").click(function () {
-		dados = new Object();
-		
-		dados.id = $(this).parents('.card').find("input[name=idSem]").val();
-		
-		manutencao();
-	});
+	$("#reconfigurar").click(function () {
+		desabilitarStatus();
 
-	$("#reinicia").click(function () {
-		dados = new Object();
-		
-		dados.id = $(this).parents('.card').find("input[name=idSem]").val();
-
-		reiniciar();
+		reconfigurar();
 	});
 
 	$("#editar").click(function () {
@@ -193,8 +206,8 @@ $(document).ready(function () {
 	$("#criar").click(function () {
 		var status = criar();
 		if (status == "0") {
+			desabilitarStatus();
 			criar_Regra();
-			Materialize.toast('Criado com sucesso!', 2000, '', function () { location.reload(); });
 		}
 		else if (status == 1)
 			Materialize.toast('Não pode ter 2 semáforos iguais em um grupo!', 4000);
@@ -206,8 +219,13 @@ $(document).ready(function () {
 		$.ajax({
 			url: window.location.href.substring(0, window.location.href.lastIndexOf('/')) + '/regra/criar',
 			success: function (e) {
+				var resp = JSON.parse(e);
+				if (resp['status'] == 1)
+					Materialize.toast('Criado com sucesso!', 2000, '', function () { location.reload(); });
+				habilitarStatus();
 			},
 			error: function (e) {
+				Materialize.toast('Ocorreu um erro, tente novamente!', 2000);
 			},
 			type: 'POST',
 			data: JSON.stringify(dados),
@@ -235,7 +253,7 @@ $(document).ready(function () {
 		});
 	}
 
-	function manutencao(){
+	function manutencao() {
 		$.ajax({
 			url: window.location.href.substring(0, window.location.href.lastIndexOf('/')) + '/regra/manutencao',
 			success: function (e) {
@@ -253,13 +271,14 @@ $(document).ready(function () {
 		});
 	}
 
-	function reiniciar(){
+	function reiniciar() {
 		$.ajax({
 			url: window.location.href.substring(0, window.location.href.lastIndexOf('/')) + '/regra/reiniciar',
 			success: function (e) {
 				var resp = JSON.parse(e);
 				if (resp['status'] == 1)
 					Materialize.toast('Semaforos da regra reiniciados com sucesso!', 2000, '');
+				habilitarStatus();
 			},
 			error: function (e) {
 			},
@@ -267,6 +286,24 @@ $(document).ready(function () {
 			data: JSON.stringify(dados),
 			contentType: 'application/json;charset=UTF-8',
 			cache: false,
+			processData: false
+		});
+	}
+
+	function reconfigurar() {
+		$.ajax({
+			url: window.location.href.substring(0, window.location.href.lastIndexOf('/')) + '/regra/reconfigurar',
+			success: function (e) {
+				var resp = JSON.parse(e);
+				if (resp['status'] == 1)
+					Materialize.toast('Semaforos da regra reconfigurados com sucesso!', 2000, '');
+				habilitarStatus();
+			},
+			error: function (e) {
+			},
+			type: 'POST',
+			cache: false,
+			contentType: false,
 			processData: false
 		});
 	}
@@ -372,25 +409,35 @@ $(document).ready(function () {
 			//Verifica se um dado foi selecionado
 			grupo.ids.push($(this).val());
 		});
-		return grupo
+		return grupo;
 	}
 
-	/*var stats = setInterval(function () {
-		$.ajax({
-			url: window.location.href.substring(0, window.location.href.lastIndexOf('/')) + '/regras/status',
-			success: function (e) {
-				var resp = JSON.parse(e);
-				set_Semaforos(resp);
-			},
-			error: function (e) {
-				clearInterval(stats);		
-			},
-			type: 'POST',
-			data: JSON.stringify(getIds()),
-			contentType: 'application/json;charset=UTF-8',
-			cache: false,
-			processData: false
-		});
-	}, 400);*/
+	function desabilitarStatus(){
+		clearInterval(stats);		
+	}
 
+	function habilitarStatus() {
+		stats = setInterval(function () {
+			$.ajax({
+				url: window.location.href.substring(0, window.location.href.lastIndexOf('/')) + '/regras/status',
+				success: function (e) {
+					var resp = JSON.parse(e);
+					set_Semaforos(resp);
+				},
+				error: function (e) {
+					desabilitarStatus()
+				},
+				type: 'POST',
+				data: JSON.stringify(getIds()),
+				contentType: 'application/json;charset=UTF-8',
+				cache: false,
+				processData: false
+			});
+		}, 400);
+	}
+
+	$.ready.then(function(){
+		console.log("carregada");
+		habilitarStatus();
+	});
 });

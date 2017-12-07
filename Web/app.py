@@ -13,18 +13,16 @@ FILE = 'data/semaforo.json'
 
 app = Flask(__name__)
 th = Thread()
-tentativas = 0
-finished = 0
 
-semaforos = [1, 2, 3, 4]
+finished = 0
+tentativas = 0
+sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+
+semaforos = []
 
 dados = {}
 
-command = ''
-data = ''
-avaiable = True
-
-
+# Cria/modifica/carrega/remove do arquivo json(banco de dados)
 def atualizar_file(data):
     global dados
     dados['grupos'][unicode(str(dados['maxid']), "utf-8")] = data
@@ -56,7 +54,7 @@ def carregar_file():
             json.dump(dados, f, sort_keys=True, indent=4)
         print " * File:({}) criado com sucesso!".format(FILE)
 
-
+#Impede cache
 @app.after_request
 def add_header(response):
     """
@@ -67,27 +65,27 @@ def add_header(response):
     response.headers['Cache-Control'] = 'public, max-age=0'
     return response
 
-
 @app.route("/load")
 def init():
     return render_template('loading.html')
-
 
 @app.route("/", methods=['GET'])
 def load():
     global th
     global finished
+
+    #Carrega a conexão com o bluettoh
     if finished == 0:
         th = Thread(target=init_b, args=())
         th.start()
         return render_template('loading.html')
+    #Conexão com bluetooth bem sucedida? carrega a página principal com os semáforos
     elif finished == 1:
         global dados
         if request.method == 'GET':
-            try:
-                return render_template('index.html', semaforos=semaforos_ID(0), regras=dados['grupos'], dependencias=semaforos_ID(1))
-            except:
-                return render_template('erro.html')
+            return render_template('index.html', semaforos=semaforos_ID(0), regras=dados['grupos'], dependencias=semaforos_ID(1))
+
+    #Problema com a conexão do bluetooth? reinicia para o recarregamento dele, exibindo uma página de erro antes
     else:
         finished = 0
         return render_template('erro.html')
@@ -98,7 +96,7 @@ def init_b():
     global finished
     try:
         bluetooth_conf()
-    except bluetooth.btcommon.BluetoothError:
+    except:
         finished = 2
 
 
@@ -126,7 +124,10 @@ def get_regra_status():
     for i in info['ids']:
         data[i] = {}
         for j in dados['grupos'][i]['semaforos']:
-            data[i][j] = comando('D', j)
+            try:
+                data[i][j] = comando('D', j)
+            except:
+                data[i][j] = -1
 
     return json.dumps(data)
 
@@ -152,27 +153,34 @@ def reiniciar_regra():
     reinicia_semaforos(dados['grupos'][data['id']])
     return json.dumps({'status': 1, 'id': data['id']})
 
+@app.route('/regra/reconfigurar', methods=['POST'])
+def reconfigurar_regras():
+    configura_semaforos()
+    return json.dumps({'status': 1})
+
 def configura_semaforos():
     for i in calcula_tempos():
         comando('C', i)
 
 def mudaEstado_semaforos(data, estado):
+    print "ok"
     global dados
-    if data == '':
+    if data == "":
         for i in dados['grupos']:
             ids = ''
             for j in dados['grupos'][i]['semaforos']:
                 ids += j+'-'+str(estado)+'|'
             comando('T', ids[:-1])
+            print ids
     else:
         ids = ''
         for j in data['semaforos']:
             ids += j+'-'+str(estado)+'|'
         comando('T', ids[:-1])
     
-def reinicia_semaforos(data):
+def reinicia_semaforos(data=""):
     global dados
-    if data == '':
+    if data == "":
         for i in dados['grupos']:
             ids = ''
             primeiro = 1
@@ -181,6 +189,7 @@ def reinicia_semaforos(data):
                 if primeiro == 1:
                     primeiro = 0
             comando('R', ids[:-1])
+            print ids
     else:
         ids = ''
         primeiro = 1
@@ -193,8 +202,8 @@ def reinicia_semaforos(data):
 
 def config_init():
     configura_semaforos()
-    mudaEstado_semaforos(data, 1)
-    reinicia_semaforos(data)   
+    mudaEstado_semaforos("", 1)
+    reinicia_semaforos("")   
 
 @app.route('/regra/deletar', methods=['DELETE'])
 def deletar_regra():
@@ -207,80 +216,77 @@ def deletar_regra():
 
 def semaforos_ID(usados):
     global semaforos
-    try:
-        semaforos = json.loads(comando('N'))
-        sem = []
-        todos = []
+    global dados
 
-        for i in dados['grupos']:
-            for j in dados['grupos'][i]['semaforos']:
-                todos += map(int, j)
+    semaforos = json.loads(comando('N'))
 
-        if usados == 1:
-            sem += [x for x in semaforos if x in todos and x not in sem]
-        else:
-            sem += [x for x in semaforos if x not in todos and x not in sem]
-        return sem
-    except:
-        raise bluetooth.btcommon.BluetoothError
+    sem = []
+    todos = []
+
+    for i in dados['grupos']:
+        for j in dados['grupos'][i]['semaforos']:
+            todos += map(int, j)
+
+    if usados == 1:
+        sem += [x for x in semaforos if x in todos and x not in sem]
+    else:
+        sem += [x for x in semaforos if x not in todos and x not in sem]
+    return sem
 
 # Bluetooh
 def bluetooth_conf():
-    global command, data, avaiable, finished, dados
+    global sock, finished
     sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
     sock.connect((BD_ADDR, BD_PORTA))
-    sock.settimeout(1.0)
+    sock.settimeout(5.0)
     print 'Bluetooth Connected'
+
+    #th = Thread(target=config_init, args=())
+    #th.start()
+
     finished = 1
-    info = ''
-    th = Thread(target=config_init, args=())
-    th.start()
 
-    while command != 'end':
-        if(command != ''):
-            if command == 'N':
-                sock.send(command)
+    try:
+        while True:
+            continue
+    except:
+        return
 
+def comando(comando, dados=''):
+    global sock
+    data = ""
+    info = ""
+    while True:
+        try:
+            if comando == 'N':
+                sock.send(comando)
                 while True:
                     info += sock.recv(1)
                     if info.find('\n') != -1:
                         break
-            elif command == 'D':
-                sock.send(command)
+            elif comando == 'D':
+                sock.send(comando)
                 sock.recv(1)
-                sock.send(data + '\n')
-
+                sock.send(dados + '\n')
                 while True:
                     info += sock.recv(1)
                     if info.find('\n') != -1:
                         break
             else:
-                sock.send(command)
+                sock.send(comando)
                 sock.recv(1)
-                sock.send(data + '\n')
+                sock.send(dados + '\n')
+                return
+            break
+        except bluetooth.btcommon.BluetoothError:
+            continue
+    
 
-            try:
-                data = info.replace('\n', '').replace(
-                    '\r', '').encode('utf-8')
-
-                print data
-            except UnicodeDecodeError:
-                raise bluetooth.btcommon.BluetoothError
-            finally:
-                avaiable = True
-                info = ''
-                command = ''
-
-
-def comando(comando, dados=''):
-    global command
-    global data
-    global avaiable
-    command = comando
-    data = dados
-    avaiable = False
-    while avaiable != True:
-        continue
+    try:
+        data = info.replace('\n', '').replace(
+                '\r', '').encode('utf-8')
+    except UnicodeDecodeError:
+        raise bluetooth.btcommon.BluetoothError
     return data
 
 

@@ -1,5 +1,5 @@
 $(document).ready(function () {
-  setInterval(function () {
+  var refresh = setInterval(function () {
     $.ajax({
       url: window.location.href.substring(0, window.location.href.lastIndexOf('/')) + '/status',
       success: function (e) {

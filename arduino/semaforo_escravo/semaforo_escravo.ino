@@ -1,4 +1,5 @@
 #include <SoftwareSerial.h>
+#include <EEPROM.h>
 
 #define MANUTENCAO 0
 #define ABERTO 1
@@ -24,7 +25,9 @@ unsigned long previousMillis = 0;
 
 char incomingByte;
 
-#define ID 4
+long obterIDEEPROM();
+
+long ID = obterIDEEPROM();
 
 void setup() {
   pinMode(V, OUTPUT);
@@ -37,12 +40,12 @@ void setup() {
   Serial2.begin(115200);
   Serial3.begin(115200);
 
-  getSemaforos();
 }
 void loop() {
   if (Serial3.available() > 0) {
     // read the incoming byte:
     incomingByte = Serial3.read();
+
 
     if (incomingByte == 'S') {
       sprintf(json, "%s", getSemaforos().c_str());
@@ -64,6 +67,10 @@ void loop() {
   semaforo();
 }
 
+/*Funções Padrões do Arduino
+  Não foi utilizada uma lib externa nos projetos pois o arduino IDE não tem suporte para subdiretórios
+  pois ele compila o .ino somente em seu diretório local.
+*/
 void trocaEstadoSemaforos(char incomingByte) {
   String data = "";
   String S = "";
@@ -82,7 +89,6 @@ void trocaEstadoSemaforos(char incomingByte) {
       if (c == '-') {
         id = S.toInt();
         S = "";
-        primeiro = false;
         data += (char)c;
         continue;
       }
@@ -92,7 +98,6 @@ void trocaEstadoSemaforos(char incomingByte) {
           trocaEstado(estado);
 
         S = "";
-        primeiro = false;
       }
       else
         S += (char)c;
@@ -179,21 +184,22 @@ void getStatus(char incomingByte) {
   while (true) {
     if (Serial3.available() > 0) {
       int c = Serial3.read();
+      data += (char)c;
       if (c == '\n')
         break;
       else
         S += (char)c;
-      data += (char)c;
     }
   }
   estatus = S.toInt();
   if (estatus == ID)
-    retornaStatus(stats);
+    retornaStatus(String(stats));
   else
     retornaStatus(setSemaforo(data, incomingByte));
 }
 
-void retornaStatus(int stats) {
+void retornaStatus(String stats) {
+  Serial.println(stats);
   Serial3.println(stats);
 }
 
@@ -202,111 +208,105 @@ String getSemaforos() {
   String semaforo;
   for (int i = 2; i <= 4; i++) {
     semaforo = getSemaforo(i);
-    if (!semaforo.equals("0"))
+    if (!semaforo.equals("-1"))
       semaforos += "," + semaforo;
   }
   return ID + semaforos;
 }
 
+
 String getSemaforo(int id) {
   String S = "";    // string to hold input
   int i = 0;
+  int c;
 
-  while (i < 3) {
+  while (i < 10) {
     if (id == 2) {
       Serial4.print('S');
-      delay(10);
       while (Serial4.available() > 0) {
-        int c = Serial4.read();
+        c = Serial4.read();
         if (c == '\n' || c == 'S')
-          break;
-        else
+          return cleanBuffer(S);
+        else if (isDigit(c) || c == ',' || c == ' ')
           S += (char)c;
-
       }
-      break;
     }
     else if (id == 3) {
       Serial1.print('S');
-      delay(10);
       while (Serial1.available() > 0) {
-        int c = Serial1.read();
+        c = Serial1.read();
         if (c == '\n' || c == 'S')
-          break;
-        else
+          return cleanBuffer(S);
+        else if (isDigit(c) || c == ',' || c == ' ')
           S += (char)c;
       }
-      break;
+      if (c == '\n') break;
     }
     else if (id == 4) {
       Serial2.print('S');
-      delay(10);
       while (Serial2.available() > 0) {
-        int c = Serial2.read();
+        c = Serial2.read();
+
         if (c == '\n' || c == 'S')
-          break;
-        else
+          return cleanBuffer(S);
+        else if (isDigit(c) || c == ',' || c == ' ')
           S += (char)c;
       }
-      break;
     }
     i++;
   }
-  if (S.equals("") || S.equals("S"))
-    S = "0";
-
-  S.trim();
-
-  clearFlush();
-  
-  return S;
+  return "0";
 }
 
-int setSemaforo(String data, char incomingByte) {
+String setSemaforo(String data, char incomingByte) {
   String S = "";
+  int i = 0;
+  int c;
 
-  if (Serial4.available() > 0) {
-    Serial4.print(incomingByte);
-    Serial4.println(data);
-    if (incomingByte == 'D') {
-      while (Serial4.available() > 0) {
-        int c = Serial4.read();
-        if (c == '\n' || c == 'S')
-          break;
-        else
-          S += (char)c;
-      }
-    }
-  }
-  if (Serial1.available() > 0) {
-    Serial1.print(incomingByte);
-    Serial1.println(data);
-    if (incomingByte == 'D') {
-      while (Serial1.available() > 0) {
-        int c = Serial1.read();
-        if (c == '\n' || c == 'S')
-          break;
-        else
-          S += (char)c;
-      }
-    }
-  }
+  Serial4.print(incomingByte);
+  Serial4.println(data);
 
-  if (Serial2.available() > 0) {
-    Serial2.print(incomingByte);
-    Serial2.println(data);
-    if (incomingByte == 'D') {
-      while (Serial2.available() > 0) {
-        int c = Serial2.read();
-        if (c == '\n' || c == 'S')
-          break;
-        else
-          S += (char)c;
-      }
+  Serial1.print(incomingByte);
+  Serial1.println(data);
+
+  Serial2.print(incomingByte);
+  Serial2.println(data);
+
+  if (incomingByte == 'D') {
+    while (Serial4.available() > 0) {
+      c = Serial4.read();
+      if (c == '\n' || c == 'D' || c == "-1")
+        break;
+      else if (isDigit(c))
+        S += (char)c;
+    }
+
+    while (Serial1.available() > 0) {
+      c = Serial1.read();
+      if (c == '\n' || c == 'D' || c == "-1")
+        break;
+      else if (isDigit(c))
+        S += (char)c;
+    }
+
+    while (Serial2.available() > 0) {
+      c = Serial2.read();
+      if (c == '\n' || c == 'D' || c == "-1")
+        break;
+      else if (isDigit(c))
+        S += (char)c;
     }
   }
-  S.trim();
-  return S.toInt();
+  Serial.println(S);
+  return cleanBuffer(S);
+}
+
+String cleanBuffer(String buff) {
+  if (buff.equals(""))
+    buff = "-1";
+
+  buff.trim();
+  return buff;
 }
 
 void semaforo() {
@@ -315,11 +315,12 @@ void semaforo() {
     if (currentMillis - previousMillis >= tempoManutencao) {
       previousMillis = currentMillis;
       digitalWrite(Y, !digitalRead(Y));
+      stats = 2;
     }
   }
   else if (estado == 1) {
     if (stats == 0) {
-      if (currentMillis - previousMillis >= tempoAberto) {
+      if (currentMillis - previousMillis >= tempoAberto - tempoWarn) {
         previousMillis = currentMillis;
         digitalWrite(G, LOW);
         digitalWrite(Y, HIGH);
@@ -335,7 +336,7 @@ void semaforo() {
       }
     }
     else {
-      if (currentMillis - previousMillis >= tempoFechado + tempoWarn / 2) {
+      if (currentMillis - previousMillis >= tempoFechado) {
         previousMillis = currentMillis;
         digitalWrite(V, LOW);
         digitalWrite(G, HIGH);
@@ -375,12 +376,36 @@ void reiniciar() {
       digitalWrite(V, HIGH);
       stats = 2;
     }
+  else
+    stats = 1;
 }
 
-void clearFlush() {
-  while (Serial3.available())
-    Serial3.read();
+void clearFlush(int serial) {
+  if (serial == 1 || serial == -1)
+    while (Serial1.available() > 0)
+      Serial1.read();
+
+  else if (serial == 2 || serial == -1)
+    while (Serial2.available() > 0)
+      Serial2.read();
+
+  else if (serial == 3 || serial == -1)
+    while (Serial3.available() > 0)
+      Serial3.read();
+
+  else if (serial == 4 || serial == -1)
+    while (Serial4.available() > 0)
+      Serial4.read();
 }
 
+long obterIDEEPROM()
+{
+  int addr = 0;
 
+  long four = EEPROM.read(addr);
+  long three = EEPROM.read(addr + 1);
+  long two = EEPROM.read(addr + 2);
+  long one = EEPROM.read(addr + 3);
 
+  return ((four << 0) & 0xFF) + ((three << 8) & 0xFFFF) + ((two << 16) & 0xFFFFFF) + ((one << 24) & 0xFFFFFFFF);
+}
